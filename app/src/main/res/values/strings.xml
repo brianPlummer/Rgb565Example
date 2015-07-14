@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="defaultVerbiage">ARGB_8888</string>
+    <string name="modVerbiage">RGB_565</string>
 </resources>
