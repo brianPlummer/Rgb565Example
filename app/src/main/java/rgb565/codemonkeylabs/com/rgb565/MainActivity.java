@@ -1,24 +1,30 @@
 package rgb565.codemonkeylabs.com.rgb565;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import rgb565.codemonkeylabs.com.rgb565.picasso.BitmapTransform;
+
 public class MainActivity extends AppCompatActivity {
 
-
     public static final String TAG = "MainActivity";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +34,35 @@ public class MainActivity extends AppCompatActivity {
         ImageView mainImgDefault = (ImageView) findViewById(R.id.mainImgDefault);
         ImageView mainImgMod = (ImageView) findViewById(R.id.mainImgMod);
 
-        String url = "http://static.stg.nytimes.com/images/2015/06/23/arts/obama-photo/obama-photo-jumbo.jpg";
+        String url = "https://steveconway.files.wordpress.com/2013/01/hpim2085.jpg";
 
-        fetchImageWithAsyncTask(url, mainImgDefault, Bitmap.Config.ARGB_8888);
-        fetchImageWithAsyncTask(url, mainImgMod, Bitmap.Config.RGB_565);
+        //fetchImageWithAsyncTask(url, mainImgDefault, Bitmap.Config.ARGB_8888);
+        //fetchImageWithAsyncTask(url, mainImgMod, Bitmap.Config.RGB_565);
+
+        fetchImageWithPicasso(url, mainImgDefault, Bitmap.Config.ARGB_8888);
+        fetchImageWithPicasso(url, mainImgMod, Bitmap.Config.RGB_565);
 
     }
+
+
+    private void fetchImageWithPicasso(String urlString,
+                                       ImageView target,
+                                       Bitmap.Config config) {
+
+
+        int targetWidth = getScreenSize(MainActivity.this).x;
+
+        double aspectRatio = 888d / 1187d;
+        int targetHeight = (int) (targetWidth * aspectRatio);
+
+        Picasso.with(MainActivity.this)
+                .load(urlString)
+                .transform(new BitmapTransform(targetWidth, targetHeight, urlString, config))
+                .resize(targetWidth, targetHeight)
+                .centerInside()
+                .into(target);
+    }
+
 
     private void fetchImageWithAsyncTask(final String urlString,
                                          final ImageView target,
@@ -69,7 +98,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    public static Point getScreenSize(Context context) {
+        WindowManager windowManager =
+                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        Point result = new Point();
+        display.getSize(result);
+        return result;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,10 +113,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
